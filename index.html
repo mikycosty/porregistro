@@ -51,46 +51,54 @@
         <div class="hash-list" id="registroContainer">
             <div style="color: #64748b; text-align: center; padding: 20px;">Caricamento registri in corso...</div>
         </div>
-
-        <button class="clear-btn" onclick="pulisciBacheca()">Svuota Registro Locale</button>
     </div>
 
     <script>
-        // Funzione per caricare gli hash registrati (in questa fase letti dal localStorage locale di sviluppo)
-        function caricaRegistri() {
+        async function caricaRegistri() {
             const container = document.getElementById('registroContainer');
             
-            // Recupera gli hash salvati dal client (index_fusion.html)
-            const hashesSalvati = JSON.parse(localStorage.getItem('por_hashes') || '[]');
+            // Inserisci qui i tuoi dati Supabase
+            const SUPABASE_URL = "https://tuo-id-database.supabase.co";
+            const SUPABASE_ANON_KEY = "sb_publishable_FfOipl6nGeBFnLq8jxjvUA_KK26-G27";
 
-            if (hashesSalvati.length === 0) {
-                container.innerHTML = `<div style="color: #64748b; text-align: center; padding: 20px;">In attesa dei primi scatti Proof of Reality...</div>`;
-                return;
+            try {
+                // Interroga la tabella 'registri_por' ordinandola per timestamp
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/registri_por?select=*&order=timestamp.desc`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (!response.ok) throw new Error("Errore nel recupero dati da Supabase");
+
+                const hashesSalvati = await response.json();
+
+                if (hashesSalvati.length === 0) {
+                    container.innerHTML = `<div style="color: #64748b; text-align: center; padding: 20px;">In attesa dei primi scatti Proof of Reality...</div>`;
+                    return;
+                }
+
+                container.innerHTML = hashesSalvati.map(item => `
+                    <div class="hash-item">
+                        <div class="hash-header">
+                            <span>${new Date(item.timestamp).toLocaleString()}</span>
+                            <span class="score-badge">Human Score: ${typeof item.human_score === 'number' ? item.human_score.toFixed(2) : item.human_score}</span>
+                        </div>
+                        <div class="hash-value">${item.hash}</div>
+                        <div class="hash-details">
+                            Pi Network TxID: <span class="tx-badge">${item.pi_txid || 'PENDING_PI_TRANSACTION'}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `<div style="color: #dc2626; text-align: center; padding: 20px;">Errore di connessione al database.</div>`;
             }
-
-            // Popola la bacheca con le impronte digitali calcolate e le relative informazioni
-            container.innerHTML = hashesSalvati.map(item => `
-                <div class="hash-item">
-                    <div class="hash-header">
-                        <span>${new Date(item.timestamp).toLocaleString()}</span>
-                        <span class="score-badge">Human Score: ${typeof item.human_score === 'number' ? item.human_score.toFixed(2) : item.human_score}</span>
-                    </div>
-                    <div class="hash-value">${item.hash}</div>
-                    <div class="hash-details">
-                        Pi Network TxID: <span class="tx-badge">${item.pi_txid || 'PENDING_PI_TRANSACTION'}</span>
-                    </div>
-                </div>
-            `).join('');
         }
 
-        function pulisciBacheca() {
-            if (confirm("Sei sicuro di voler svuotare l'archivio locale degli hash?")) {
-                localStorage.removeItem('por_hashes');
-                caricaRegistri();
-            }
-        }
-
-        // Aggiorna la vista all'apertura della pagina e imposta un auto-refresh ogni 3 secondi
+        // Carica i registri all'avvio e imposta l'aggiornamento automatico ogni 3 secondi
         window.onload = () => {
             caricaRegistri();
             setInterval(caricaRegistri, 3000);
