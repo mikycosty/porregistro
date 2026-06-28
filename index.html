@@ -1,1 +1,100 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPPOR - Registro Impronte di Realtà</title>
+    <style>
+        body { 
+            background: #070b19; 
+            color: #38bdf8; 
+            font-family: monospace; 
+            text-align: center; 
+            padding: 20px; 
+            margin: 0; 
+        }
+        .box { 
+            border: 2px solid #38bdf8; 
+            background: #0f172a; 
+            padding: 20px; 
+            border-radius: 12px; 
+            max-width: 650px; 
+            margin: 0 auto; 
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.2); 
+        }
+        h1 { font-size: 20px; color: #ffffff; border-bottom: 1px solid #1e293b; padding-bottom: 15px; }
+        .hash-list { margin-top: 20px; text-align: left; max-height: 450px; overflow-y: auto; }
+        .hash-item { 
+            background: rgba(56, 189, 248, 0.05); 
+            border: 1px solid rgba(56, 189, 248, 0.15); 
+            padding: 12px; 
+            border-radius: 6px; 
+            margin-bottom: 12px; 
+            word-break: break-all; 
+            font-size: 13px; 
+        }
+        .hash-header { display: flex; justify-content: space-between; color: #64748b; font-size: 11px; margin-bottom: 6px; }
+        .hash-value { color: #5bc0be; font-weight: bold; }
+        .hash-details { margin-top: 6px; font-size: 11px; color: #94a3b8; }
+        .score-badge { background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 2px 6px; border-radius: 4px; font-size: 10px; }
+        .tx-badge { background: rgba(56, 189, 248, 0.1); color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-family: monospace; }
+        .clear-btn { margin-top: 15px; background: #334155; color: #cbd5e1; border: none; font-size: 11px; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-family: monospace; }
+        .clear-btn:hover { background: #475569; }
+    </style>
+</head>
+<body>
 
+    <div class="box">
+        <h1>Bacheca Proof of Reality (PoR)</h1>
+        <p style="font-size: 12px; color: #64748b;">Registro pubblico e inalterabile delle impronte digitali (Hash SHA-256)</p>
+        
+        <div class="hash-list" id="registroContainer">
+            <div style="color: #64748b; text-align: center; padding: 20px;">Caricamento registri in corso...</div>
+        </div>
+
+        <button class="clear-btn" onclick="pulisciBacheca()">Svuota Registro Locale</button>
+    </div>
+
+    <script>
+        // Funzione per caricare gli hash registrati (in questa fase letti dal localStorage locale di sviluppo)
+        function caricaRegistri() {
+            const container = document.getElementById('registroContainer');
+            
+            // Recupera gli hash salvati dal client (index_fusion.html)
+            const hashesSalvati = JSON.parse(localStorage.getItem('por_hashes') || '[]');
+
+            if (hashesSalvati.length === 0) {
+                container.innerHTML = `<div style="color: #64748b; text-align: center; padding: 20px;">In attesa dei primi scatti Proof of Reality...</div>`;
+                return;
+            }
+
+            // Popola la bacheca con le impronte digitali calcolate e le relative informazioni
+            container.innerHTML = hashesSalvati.map(item => `
+                <div class="hash-item">
+                    <div class="hash-header">
+                        <span>${new Date(item.timestamp).toLocaleString()}</span>
+                        <span class="score-badge">Human Score: ${typeof item.human_score === 'number' ? item.human_score.toFixed(2) : item.human_score}</span>
+                    </div>
+                    <div class="hash-value">${item.hash}</div>
+                    <div class="hash-details">
+                        Pi Network TxID: <span class="tx-badge">${item.pi_txid || 'PENDING_PI_TRANSACTION'}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function pulisciBacheca() {
+            if (confirm("Sei sicuro di voler svuotare l'archivio locale degli hash?")) {
+                localStorage.removeItem('por_hashes');
+                caricaRegistri();
+            }
+        }
+
+        // Aggiorna la vista all'apertura della pagina e imposta un auto-refresh ogni 3 secondi
+        window.onload = () => {
+            caricaRegistri();
+            setInterval(caricaRegistri, 3000);
+        };
+    </script>
+</body>
+</html>
