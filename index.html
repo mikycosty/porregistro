@@ -3,66 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PPPOR - Registro Impronte di Realtà</title>
+    <title>Bacheca Proof of Reality (PoR)</title>
     <style>
         body { 
             background: #070b19; 
             color: #38bdf8; 
             font-family: monospace; 
             text-align: center; 
-            padding: 20px; 
+            padding: 30px; 
             margin: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
         }
-        .box { 
+        .bacheca-box { 
             border: 2px solid #38bdf8; 
             background: #0f172a; 
-            padding: 20px; 
-            border-radius: 12px; 
-            max-width: 650px; 
-            margin: 0 auto; 
-            box-shadow: 0 0 25px rgba(56, 189, 248, 0.2); 
+            padding: 30px; 
+            border-radius: 16px; 
+            max-width: 600px; 
+            width: 100%;
+            box-shadow: 0 0 35px rgba(56, 189, 248, 0.2); 
         }
-        h1 { font-size: 20px; color: #ffffff; border-bottom: 1px solid #1e293b; padding-bottom: 15px; }
-        .hash-list { margin-top: 20px; text-align: left; max-height: 450px; overflow-y: auto; }
-        .hash-item { 
-            background: rgba(56, 189, 248, 0.05); 
+        h2 { 
+            color: #ffffff; 
+            margin-top: 0; 
+            margin-bottom: 10px; 
+            font-size: 22px; 
+            letter-spacing: 1px; 
+        }
+        .subtitle { 
+            font-size: 12px; 
+            color: #64748b; 
+            margin-bottom: 30px; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px; 
+        }
+        .card-notarizzazione { 
+            background: rgba(56, 189, 248, 0.04); 
             border: 1px solid rgba(56, 189, 248, 0.15); 
-            padding: 12px; 
-            border-radius: 6px; 
-            margin-bottom: 12px; 
-            word-break: break-all; 
-            font-size: 13px; 
+            border-radius: 10px; 
+            padding: 15px 20px; 
+            text-align: left; 
+            margin-bottom: 20px; 
+            font-size: 11px; 
+            color: #94a3b8; 
         }
-        .hash-header { display: flex; justify-content: space-between; color: #64748b; font-size: 11px; margin-bottom: 6px; }
-        .hash-value { color: #5bc0be; font-weight: bold; }
-        .hash-details { margin-top: 6px; font-size: 11px; color: #94a3b8; }
-        .score-badge { background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 2px 6px; border-radius: 4px; font-size: 10px; }
-        .tx-badge { background: rgba(56, 189, 248, 0.1); color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-family: monospace; }
-        .clear-btn { margin-top: 15px; background: #334155; color: #cbd5e1; border: none; font-size: 11px; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-family: monospace; }
-        .clear-btn:hover { background: #475569; }
+        .timestamp { 
+            border-bottom: 1px dashed rgba(148, 163, 184, 0.2); 
+            padding-bottom: 6px; 
+            margin-bottom: 8px; 
+            color: #cbd5e1; 
+        }
+        .hash-t { 
+            color: #38bdf8; 
+            word-break: break-all; 
+            font-family: monospace; 
+            font-size: 12px; 
+            margin-bottom: 12px; 
+            background: rgba(2, 6, 23, 0.5);
+            padding: 6px;
+            border-radius: 4px;
+            border-left: 3px solid #38bdf8;
+        }
+        .foto-preview {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #1e293b;
+        }
+        .meta-info { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: rgba(16, 185, 129, 0.05);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(16, 185, 129, 0.15);
+        }
+        .score-badge { 
+            background: #10b981; 
+            color: #ffffff; 
+            padding: 4px 10px; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            font-size: 10px; 
+            text-transform: uppercase; 
+        }
+        .tx-badge { 
+            background: #1e293b; 
+            color: #94a3b8; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            font-size: 10px; 
+            font-family: monospace;
+            border: 1px solid #334155;
+        }
+        .btn-svuota { 
+            background: #334155; 
+            color: #cbd5e1; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-family: monospace; 
+            font-size: 12px; 
+            margin-top: 15px; 
+            transition: background 0.2s; 
+        }
+        .btn-svuota:hover { background: #475569; color: #ffffff; }
+        #emptyMsg { color: #475569; padding: 20px 0; font-style: italic; }
     </style>
 </head>
 <body>
 
-    <div class="box">
-        <h1>Bacheca Proof of Reality (PoR)</h1>
-        <p style="font-size: 12px; color: #64748b;">Registro pubblico e inalterabile delle impronte digitali (Hash SHA-256)</p>
-        
-        <div class="hash-list" id="registroContainer">
-            <div style="color: #64748b; text-align: center; padding: 20px;">Caricamento registri in corso...</div>
+    <div class="bacheca-box">
+        <h2>Bacheca Proof of Reality (PoR)</h2>
+        <div class="subtitle">Registro pubblico e inalterabile delle impronte digitali e multimediali</div>
+
+        <div id="listaNotarizzazioni">
+            <div id="emptyMsg">Caricamento registri in corso...</div>
         </div>
 
-        <button class="clear-btn" onclick="pulisciBacheca()">Svuota Registro Locale</button>
+        <button class="btn-svuota" onclick="svuotaBacheca()">Svuota Registro Locale</button>
     </div>
 
     <script>
-        async function caricaRegistri() {
-            const container = document.getElementById('registroContainer');
-            const SUPABASE_URL = "https://fatnxlyqifpjkpsbhikz.supabase.co";
-            const SUPABASE_ANON_KEY = "sb_publishable_FfOipl6nGeBFnLq8jxjvUA_KK26-G27";
+        const SUPABASE_URL = "https://fatnxlyqifpjkpsbhikz.supabase.co"; 
+        const SUPABASE_ANON_KEY = "sb_publishable_FfOipl6nGeBFnLq8jxjvUA_KK26-G27";
 
+        async function caricaRegistri() {
             try {
-                // Interroga la tabella ordinandola per inserimento decrescente
+                // Interrogo il database ordinando per data di creazione discendente
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/notarizzazioni?select=*&order=created_at.desc`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
@@ -70,43 +143,45 @@
                     }
                 });
 
-                if (!response.ok) throw new Error("Errore comunicazione API database");
+                if (!response.ok) throw new Error("Errore nel recupero dei dati");
 
                 const notarizzazioni = await response.json();
+                const container = document.getElementById('listaNotarizzazioni');
 
-                if (notarizzazioni.length === 0) {
-                    container.innerHTML = `<div style="color: #64748b; text-align: center; padding: 20px;">In attesa dei primi scatti Proof of Reality...</div>`;
+                if (!notarizzazioni || notarizzazioni.length === 0) {
+                    container.innerHTML = '<div id="emptyMsg">Nessuna impronta notarizzata in bacheca.</div>';
                     return;
                 }
 
+                // Mappatura dei record, inclusa la visualizzazione dell'immagine se l'URL è presente
                 container.innerHTML = notarizzazioni.map(item => `
-                    <div class="hash-item">
-                        <div class="hash-header">
-                            <span>${new Date(item.created_at).toLocaleString()}</span>
-                            <span class="score-badge">Human Score: ${typeof item.human_score === 'number' ? item.human_score.toFixed(2) : item.human_score}</span>
-                        </div>
-                        <div class="hash-value">${item.hash}</div>
-                        <div class="hash-details">
-                            Pi Network TxID: <span class="tx-badge">${item.pi_txid || 'PENDING_PI_TRANSACTION'}</span>
+                    <div class="card-notarizzazione">
+                        <div class="timestamp">${new Date(item.created_at).toLocaleString()}</div>
+                        
+                        ${item.foto_url ? `<img src="${item.foto_url}" class="foto-preview" alt="Foto Notarizzata">` : ''}
+                        
+                        <div class="hash-t">${item.hash}</div>
+                        <div class="meta-info">
+                            <div>Human Validation Score: <span class="score-badge">${item.human_score.toFixed(2)}</span></div>
+                            <div>Pi Network TxID: <span class="tx-badge">${item.pi_txid || 'PENDING_PI_TRANSACTION'}</span></div>
                         </div>
                     </div>
                 `).join('');
 
             } catch (err) {
-                console.error(err);
-                container.innerHTML = `<div style="color: #dc2626; text-align: center; padding: 20px;">Impossibile caricare i dati dal registro.</div>`;
+                console.error("Errore:", err);
+                document.getElementById('listaNotarizzazioni').innerHTML = 
+                    '<div id="emptyMsg" style="color:#ef4444;">Impossibile caricare i dati dal database.</div>';
             }
         }
 
-        function pulisciBacheca() {
-            alert("La bacheca ora legge direttamente dal DB centrale Supabase.");
+        function svuotaBacheca() {
+            document.getElementById('listaNotarizzazioni').innerHTML = 
+                '<div id="emptyMsg">Registro locale svuotato.</div>';
         }
 
-        // Aggiorna la vista all'apertura della pagina e imposta un auto-refresh ogni 5 secondi
-        window.onload = () => {
-            caricaRegistri();
-            setInterval(caricaRegistri, 5000);
-        };
+        // Avvia il caricamento automatico all'apertura della pagina
+        caricaRegistri();
     </script>
 </body>
 </html>
