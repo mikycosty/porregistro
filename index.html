@@ -54,15 +54,15 @@
     </div>
 
     <script>
+        // Endpoint e chiavi del tuo Cloud Database Supabase
+        const SUPABASE_URL = "https://fatnxlyqifpjkpsbhikz.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_FfOipl6nGeBFnLq8jxjvUA_KK26-G27";
+
         async function caricaRegistri() {
             const container = document.getElementById('registroContainer');
-            
-            // Inserisci qui i tuoi dati Supabase
-            const SUPABASE_URL = "https://tuo-id-database.supabase.co";
-            const SUPABASE_ANON_KEY = "sb_publishable_FfOipl6nGeBFnLq8jxjvUA_KK26-G27";
 
             try {
-                // Interroga la tabella 'registri_por' ordinandola per timestamp
+                // Interroga la tabella registri_por ordinando per inserimento decrescente
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/registri_por?select=*&order=timestamp.desc`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
@@ -79,10 +79,11 @@
                     return;
                 }
 
+                // Renderizza la lista delle impronte verificate
                 container.innerHTML = hashesSalvati.map(item => `
                     <div class="hash-item">
                         <div class="hash-header">
-                            <span>${new Date(item.timestamp).toLocaleString()}</span>
+                            <span>${item.timestamp ? new Date(item.timestamp).toLocaleString() : 'Data non disponibile'}</span>
                             <span class="score-badge">Human Score: ${typeof item.human_score === 'number' ? item.human_score.toFixed(2) : item.human_score}</span>
                         </div>
                         <div class="hash-value">${item.hash}</div>
@@ -98,7 +99,7 @@
             }
         }
 
-        // Carica i registri all'avvio e imposta l'aggiornamento automatico ogni 3 secondi
+        // Recupero immediato all'apertura + polling sincronizzato ogni 3 secondi
         window.onload = () => {
             caricaRegistri();
             setInterval(caricaRegistri, 3000);
